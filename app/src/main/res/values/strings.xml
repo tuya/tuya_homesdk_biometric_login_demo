@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">BiometricsLogin</string>
+    <string name="thing_biometric_login_button_title">thing_biometric_login_button_title</string>
+    <string name="thing_biometric_change_login_type_title">thing_biometric_change_login_type_title</string>
+</resources>

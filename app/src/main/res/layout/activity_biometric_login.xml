@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:gravity="center">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center">
+
+        <ImageView
+            android:id="@+id/iv_head"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center"
+            android:src="@drawable/personal_user_icon_default"
+            tools:ignore="ContentDescription" />
+
+        <TextView
+            android:id="@+id/tv_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="用户名"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="40dp" />
+
+        <FrameLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp">
+
+            <ImageView
+                android:id="@+id/iv_finger_print"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_fingerprint"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                tools:ignore="ContentDescription" />
+
+        </FrameLayout>
+
+        <TextView
+            android:id="@+id/tv_finger_print"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="点击登录"
+            android:textSize="16sp"
+            android:layout_marginBottom="40dp"
+            android:background="?attr/selectableItemBackground" />
+
+    </LinearLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/tv_enable_biometric"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="启用生物识别登录"
+        android:textSize="16sp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="10dp"
+        android:padding="10dp"
+        android:background="@color/black" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/tv_disable_biometric"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="禁用生物识别登录"
+        android:textSize="16sp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp"
+        android:padding="10dp"
+        android:background="@color/black"/>
+
+
+</LinearLayout>
