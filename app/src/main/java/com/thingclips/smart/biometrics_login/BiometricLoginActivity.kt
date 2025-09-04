@@ -16,8 +16,8 @@ import com.thingclips.smart.biometrics_login.databinding.ActivityBiometricLoginB
 class BiometricLoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBiometricLoginBinding
     private val biometricSDK = ThingBiometricsLoginSDK.getInstance()
-    private val testUid = "az1754990865951OW23j"
-    private val testAccountName = "xichen@yopmail.net"
+    private val testUid = "xxxx"
+    private val testAccountName = "xxxx"
     private val testCountryCode = "AZ"
 
     @RequiresApi(Build.VERSION_CODES.M)
