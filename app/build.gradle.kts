@@ -25,6 +25,21 @@ android {
         jniLibs.pickFirsts.add("lib/*/libthing_security_algorithm.so")
     }
 
+    signingConfigs {
+        getByName("debug") {
+            storeFile = file("xichen.jks")
+            storePassword = "xichen.dev"
+            keyAlias = "xichen.key"
+            keyPassword = "xichen.dev"
+        }
+        create("release") {
+            storeFile = file("xichen.jks")
+            storePassword = "xichen.dev"
+            keyAlias = "xichen.key"
+            keyPassword = "xichen.dev"
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -32,6 +47,11 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+            signingConfig = signingConfigs.getByName("release")
+        }
+        debug {
+            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -68,9 +88,9 @@ dependencies {
     implementation("com.squareup.okhttp3:okhttp-urlconnection:3.14.9")
 
     // App SDK 最新稳定安卓版：
-    implementation("com.thingclips.smart:thingsmart:6.7.3")
+    implementation("com.thingclips.smart:thingsmart:6.11.6")
 
-    implementation("com.thingclips.smart:thingsmart-biometrics-login:1.0.0")
+    implementation("com.thingclips.smart:thingsmart-biometrics-login:9.9.9-LOCAL")
     implementation("androidx.biometric:biometric:1.1.0")
 
 }

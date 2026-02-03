@@ -1,24 +1,28 @@
 package com.thingclips.smart.biometrics_login
 
 import android.app.AlertDialog
+import android.content.Context
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.text.TextUtils
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.biometric.BiometricManager
 import com.thingclips.smart.android.user.bean.User
-import com.thingclips.smart.biometrics.ThingBiometricsLoginSDK
 import com.thingclips.smart.biometrics.IThingBiometricFingerCallback
+import com.thingclips.smart.biometrics.ThingBiometricsLoginSDK
 import com.thingclips.smart.biometrics_login.databinding.ActivityBiometricLoginBinding
 
 class BiometricLoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityBiometricLoginBinding
     private val biometricSDK = ThingBiometricsLoginSDK.getInstance()
-    private val testUid = "xxxx"
-    private val testAccountName = "xxxx"
-    private val testCountryCode = "AZ"
+
+    private val uid: String by lazy { UserSessionManager.getUid(this) ?: "" }
+    private val accountName: String by lazy { UserSessionManager.getEmail(this) ?: "" }
+    private val countryCode: String by lazy { UserSessionManager.getCountryCode(this) ?: "" }
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,31 +47,18 @@ class BiometricLoginActivity : AppCompatActivity() {
     @RequiresApi(Build.VERSION_CODES.M)
     private fun initView() {
         // 设置用户信息
-        binding.tvName.text = "测试用户"
+        binding.tvName.text = if (accountName.isNotEmpty()) accountName else "未设置用户"
 
         // 设置防重复点击事件
         binding.ivFingerPrint.preventRepeatedClick { fingerLogin() }
         binding.tvFingerPrint.preventRepeatedClick { fingerLogin() }
 
-        // 添加启用生物识别登录按钮的点击事件
-        binding.tvEnableBiometric.preventRepeatedClick {
-            enableBiometricLogin()
-        }
-
-        // 添加禁用生物识别登录按钮的点击事件
-        binding.tvDisableBiometric.preventRepeatedClick {
-            disableBiometricLogin()
-        }
-
-        // 检查设备是否支持生物识别
         checkBiometricSupport()
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
     private fun checkBiometricSupport() {
         if (!biometricSDK.isSupportBiometricLogin(this)) {
-            binding.tvEnableBiometric.isEnabled = false
-            binding.tvDisableBiometric.isEnabled = false
             binding.ivFingerPrint.isEnabled = false
             binding.tvFingerPrint.isEnabled = false
             Toast.makeText(this, "设备不支持生物识别功能", Toast.LENGTH_LONG).show()
@@ -82,13 +73,13 @@ class BiometricLoginActivity : AppCompatActivity() {
             return
         }
         // 检查生物识别登录是否启用
-        if (!biometricSDK.isBiometricLoginEnabled(testUid)) {
+        if (uid.isEmpty() || !biometricSDK.isBiometricLoginEnabled(uid)) {
             showErrorDialog("生物识别登录未启用")
             return
         }
 
         // 检查指纹是否发生变化
-        if (biometricSDK.hasBiometricChanged(testUid)) {
+        if (biometricSDK.hasBiometricChanged(uid)) {
             showErrorDialog("指纹信息已变更，请重新设置")
             return
         }
@@ -98,73 +89,20 @@ class BiometricLoginActivity : AppCompatActivity() {
         startBiometricAuthentication()
     }
 
-    private fun disableBiometricLogin() {
-        biometricSDK.disableBiometricLogin(testUid)
-        Toast.makeText(this, "生物识别登录已禁用", Toast.LENGTH_SHORT).show()
-    }
-
-    private fun enableBiometricLogin() {
-        // 检查是否支持生物识别
-        if (!biometricSDK.isSupportBiometricLogin(this)) {
-            Toast.makeText(this, "设备不支持生物识别", Toast.LENGTH_SHORT).show()
-            return
-        }
-
-        biometricSDK.enableBiometricLogin(
-            this,
-            testUid,
-            object : IThingBiometricFingerCallback {
-                override fun onSuccess(user: User?) {
-                    runOnUiThread {
-                        Toast.makeText(this@BiometricLoginActivity, "生物识别登录已启用", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                override fun onError(errorCode: String?, errorMsg: String?) {
-                    runOnUiThread {
-                        if (!TextUtils.isEmpty(errorCode) && !TextUtils.isEmpty(errorMsg)) {
-                            when (errorCode) {
-                                BiometricManager.BIOMETRIC_ERROR_NO_HARDWARE.toString() -> {
-                                    Toast.makeText(this@BiometricLoginActivity, "设备不支持生物识别", Toast.LENGTH_SHORT).show()
-                                }
-                                BiometricManager.BIOMETRIC_ERROR_HW_UNAVAILABLE.toString() -> {
-                                    Toast.makeText(this@BiometricLoginActivity, "生物识别功能当前不可用", Toast.LENGTH_SHORT).show()
-                                }
-                                BiometricManager.BIOMETRIC_ERROR_NONE_ENROLLED.toString() -> {
-                                    Toast.makeText(this@BiometricLoginActivity, "请先在系统设置中录入生物识别信息", Toast.LENGTH_LONG).show()
-                                }
-                                else -> {
-                                    Toast.makeText(this@BiometricLoginActivity, errorMsg, Toast.LENGTH_SHORT).show()
-                                }
-                            }
-                        }
-                    }
-                }
-
-                override fun onNegative() {
-                    runOnUiThread {
-                        Toast.makeText(this@BiometricLoginActivity, "用户取消了生物识别设置", Toast.LENGTH_SHORT).show()
-                    }
-                }
-
-                override fun onFingerInfoInvalid() {
-                    runOnUiThread {
-                        Toast.makeText(this@BiometricLoginActivity, "指纹信息无效，请检查系统指纹设置", Toast.LENGTH_SHORT).show()
-                    }
-                }
-            }
-        )
-    }
-
     private fun startBiometricAuthentication() {
         // 禁用所有交互
         setViewsClickable(false)
 
+        if (uid.isEmpty() || accountName.isEmpty() || countryCode.isEmpty()) {
+            showErrorDialog("本地账号信息不完整，请使用账号密码重新登录")
+            return
+        }
+
         biometricSDK.authenticate(
             this,
-            testUid,
-            testAccountName,
-            testCountryCode,
+            uid,
+            accountName,
+            countryCode,
             object : IThingBiometricFingerCallback {
                 override fun onSuccess(user: User?) {
                     runOnUiThread {
@@ -172,7 +110,16 @@ class BiometricLoginActivity : AppCompatActivity() {
                             // 启用所有交互
                             setViewsClickable(true)
                             Toast.makeText(this@BiometricLoginActivity, "生物识别登录成功", Toast.LENGTH_SHORT).show()
-                            // 在实际应用中，这里应该跳转到主页面
+                            Log.d(TAG, "登录成功，用户信息：$user")
+                            // 指纹登录成功：更新会话（覆盖原 session，与涂鸦 SDK 新 session 一致）
+                            UserSessionManager.updateSessionAfterBiometricLogin(
+                                this@BiometricLoginActivity,
+                                user,
+                                accountName,
+                                countryCode
+                            )
+                            HomeActivity.start(this@BiometricLoginActivity)
+                            finish()
                         }
                     }
                 }
@@ -181,6 +128,7 @@ class BiometricLoginActivity : AppCompatActivity() {
                     runOnUiThread {
                         // 启用所有交互
                         setViewsClickable(true)
+                        Log.e(TAG, "登录失败，错误码：$errorCode，错误信息：$errorMsg")
 
                         if (!TextUtils.isEmpty(errorCode) && !TextUtils.isEmpty(errorMsg)) {
                             when (errorCode) {
@@ -227,8 +175,6 @@ class BiometricLoginActivity : AppCompatActivity() {
     private fun setViewsClickable(clickable: Boolean) {
         binding.ivFingerPrint.isClickable = clickable
         binding.tvFingerPrint.isClickable = clickable
-        binding.tvEnableBiometric.isClickable = clickable
-        binding.tvDisableBiometric.isClickable = clickable
     }
 
     private fun showErrorDialog(tips: String) {
@@ -238,9 +184,23 @@ class BiometricLoginActivity : AppCompatActivity() {
             .setPositiveButton("我知道了") { dialog, _ ->
                 dialog.dismiss()
                 // 在实际应用中，这里应该跳转到账号密码登录页
-                Toast.makeText(this, "请使用其他方式登录", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "请使用账号密码登录", Toast.LENGTH_SHORT).show()
+                val intent = Intent(this, MainActivity::class.java)
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_NEW_TASK)
+                startActivity(intent)
+                finish()
             }
             .setCancelable(false)
             .show()
+    }
+
+    companion object {
+        private const val TAG = "BiometricLogin"
+
+        /** 未登录时进入，仅做生物识别登录 */
+        fun startForBiometric(context: Context) {
+            val intent = Intent(context, BiometricLoginActivity::class.java)
+            context.startActivity(intent)
+        }
     }
 }

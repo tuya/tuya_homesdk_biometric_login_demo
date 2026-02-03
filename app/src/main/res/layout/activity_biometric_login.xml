@@ -58,27 +58,4 @@
 
     </LinearLayout>
 
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/tv_enable_biometric"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="启用生物识别登录"
-        android:textSize="16sp"
-        android:layout_gravity="center"
-        android:layout_marginBottom="10dp"
-        android:padding="10dp"
-        android:background="@color/black" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/tv_disable_biometric"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="禁用生物识别登录"
-        android:textSize="16sp"
-        android:layout_gravity="center"
-        android:layout_marginBottom="20dp"
-        android:padding="10dp"
-        android:background="@color/black"/>
-
-
 </LinearLayout>

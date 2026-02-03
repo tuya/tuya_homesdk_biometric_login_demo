@@ -40,6 +40,10 @@
         </activity>
         <activity android:name="com.thingclips.smart.biometrics_login.BiometricLoginActivity"
             android:exported="false"/>
+        <activity android:name="com.thingclips.smart.biometrics_login.RegisterActivity"
+            android:exported="false"/>
+        <activity android:name="com.thingclips.smart.biometrics_login.HomeActivity"
+            android:exported="false"/>
     </application>
 
 </manifest>
