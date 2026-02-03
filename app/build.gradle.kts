@@ -90,7 +90,7 @@ dependencies {
     // App SDK 最新稳定安卓版：
     implementation("com.thingclips.smart:thingsmart:6.11.6")
 
-    implementation("com.thingclips.smart:thingsmart-biometrics-login:9.9.9-LOCAL")
+    implementation("com.thingclips.smart:thingsmart-biometrics-login:1.0.1")
     implementation("androidx.biometric:biometric:1.1.0")
 
 }
